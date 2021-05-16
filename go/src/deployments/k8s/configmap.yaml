@@ -1,0 +1,11 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: stockpricedemo
+  namespace: stockpricedemo
+data:
+  HTTP_PORT: "9090"
+  NDAYS: "7"
+  SERVICE_NAME: "stockpricedemo"
+  SYMBOL: "MSFT"

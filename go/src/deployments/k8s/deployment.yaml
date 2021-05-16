@@ -1,0 +1,62 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stockpricedemo
+  namespace: stockpricedemo
+spec:
+  progressDeadlineSeconds: 300
+  replicas: 2
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: stockpricedemo
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: stockpricedemo
+        version: 0.0.1
+    spec:
+      containers:
+        - name: stockpricedemo
+          image: djrees/stockpricedemo
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 9090
+              protocol: TCP
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "0.3"
+            limits:
+              memory: "512Mi"
+          terminationMessagePath: /tmp/termination-log
+          terminationMessagePolicy: File
+          livenessProbe:
+            httpGet:
+              path: "/up"
+              port: 9090
+            failureThreshold: 3
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: "/up"
+              port: 9090
+            failureThreshold: 3
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 30
+          envFrom:
+            - configMapRef:
+                name: stockpricedemo
+            - secretRef:
+                name: stockpricedemo
+      restartPolicy: Always
+status: {}

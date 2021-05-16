@@ -1,0 +1,92 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Stock Price Web Service Demo Swagger UI",
+    "version": "0.0.1",
+    "title": "Stock Price Web Service Demo Swagger",
+    "termsOfService": "http://swagger.io/terms/",
+    "contact": {
+      "email": "contact@hotmail.com"
+    },
+    "license": {
+      "name": "Use for demo purposes only",
+      "url": "https://github.com/danieljamesrees/stockpricedemo"
+    }
+  },
+  "host": "stockprice.demo",
+  "basePath": "/v0.0.1",
+  "tags": [
+    {
+      "name": "stockpricedemo",
+      "description": "Access to the Stock Price Web Service Demo",
+      "externalDocs": {
+        "description": "Find out more",
+        "url": "https://github.com/danieljamesrees/stockpricedemo"
+      }
+    }
+  ],
+  "schemes": [
+    "https"
+  ],
+  "paths": {
+    "/stockpricedemo": {
+      "get": {
+        "summary": "Gets the stock closing prices for a specified stock symbol",
+        "description": "Gets the stock closing prices over a specified number of days for a specified stock symbol, and the average over those days",
+        "operationId": "prices",
+        "produces": [
+          "plain/text"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/stockpricedemo"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "stockpricedemo_auth": [
+              "read:stockprices"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "securityDefinitions": {
+    "stockpricedemo_auth": {
+      "type": "oauth2",
+      "authorizationUrl": "https://stockprice.demo/oauth/authorize",
+      "flow": "implicit",
+      "scopes": {
+        "read:stockprices": "read stock prices"
+      }
+    }
+  },
+  "definitions": {
+    "ApiResponse": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "type": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "externalDocs": {
+    "description": "Find out more about the Stock Price Web Service Demo",
+    "url": "https://github.com/danieljamesrees/stockpricedemo"
+  }
+}
