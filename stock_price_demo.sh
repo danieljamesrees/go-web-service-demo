@@ -105,7 +105,7 @@ setup_local_k8s() {
     --namespace ingress-nginx \
     --for=condition=ready pod \
     --selector=app.kubernetes.io/component=controller \
-    --timeout=600s
+    --timeout=90s
 
   # Don't ask - required even after the subsequent recommended wait has completed.
   # See https://github.com/kubernetes/ingress-nginx/issues/5583.
@@ -140,10 +140,11 @@ cd ../..
 
 print_with_date "${YELLOW}Building via docker${NC}"
 # TODO Using buildah or podman would allow mounting of the source volume for commands that automatically update the source code.
-# TODO Re-enable build args when in git
 DOCKER_BUILDKIT=1 docker build \
-  --build-arg arg_build_date=$(date +"%Y%m%d_%H-%M_%S") \
+  --build-arg arg_build_branch=$(git rev-parse --abbrev-ref HEAD) \
   --build-arg arg_built_by=$(whoami) \
+  --build-arg arg_build_date=$(date +"%Y%m%d_%H-%M_%S") \
+  --build-arg arg_build_project=$(basename -s .git $(git config --get remote.origin.url)) \
   --build-arg "APIKEY=${APIKEY}" \
   --build-arg "HTTP_PORT=${HTTP_PORT}" \
   --build-arg "NDAYS=${NDAYS}" \
@@ -152,8 +153,6 @@ DOCKER_BUILDKIT=1 docker build \
   --file "${__dir}/go/src/deployments/Dockerfile" \
   --tag "${SERVICE_NAME}" \
   ${__dir}/go
-#  --build-arg arg_build_branch=$(git rev-parse --abbrev-ref HEAD) \
-#  --build-arg arg_build_project=$(basename -s .git $(git config --get remote.origin.url)) \
 
 docker tag "${SERVICE_NAME}" "${DOCKER_HUB_USERNAME}/${SERVICE_NAME}"
 #docker login --username "${DOCKER_HUB_USERNAME}"
@@ -198,7 +197,9 @@ cd ../..
 
 setup_local_k8s
 
+# Doesn't seem to be a condition for ingresses, so will have to sleep or retry :(. Should implement a timeout.
 print_with_date "${YELLOW}Testing demo via Ingress${NC}"
+while [[ "$(curl --insecure --silent --output /dev/null --write-out '%{http_code}' https://localhost/up)" != "200" ]]; do echo Waiting 5 seconds for ingress; sleep 5; done
 curl --insecure -vvv https://localhost/${SERVICE_NAME}
 
 #kind delete cluster

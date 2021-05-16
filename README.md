@@ -42,6 +42,7 @@ The API key secret should be defined in an environment variable - in reality it 
 * Enable TLS with generated certificates.
 * Version pinning/updating.
 * Run the build and tests on a CI/CD server.
+* Verify swagger information.
 * shellchecking of scripts.
 * Immutable ConfigMap and Secret (for K8s 1.21).
 * Optimise the container spec and workflow.
